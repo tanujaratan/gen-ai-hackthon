@@ -244,24 +244,25 @@ elif page == "History":
                 st.markdown(f"- {typ} @ {t}: {e}")
 
 
-
-
 elif page == "Guess-the-Word Game":
     st.header("Guess-the-Word Challenge")
 
-# Initialize session state variables
+    # Initialize session state variables
     if "game_round" not in st.session_state:
-       st.session_state.game_round = 0
+        st.session_state.game_round = 0
     if "played" not in st.session_state:
-       st.session_state.played = False
-    st.header("Guess-the-Word Challenge")
-    if "game_round" not in st.session_state or st.session_state.game_round >= len(GAME_QUESTIONS):
+        st.session_state.played = False
+
+    # Reset if all questions are done
+    if st.session_state.game_round >= len(GAME_QUESTIONS):
         st.session_state.game_round = 0
         st.session_state.played = False
 
+    # Current question
+    q_obj = GAME_QUESTIONS[st.session_state.game_round]
+    st.markdown(f"**Question {st.session_state.game_round + 1}:** {q_obj['q']}")
+
     if not st.session_state.played:
-        q_obj = GAME_QUESTIONS[st.session_state.game_round]
-        st.markdown(f"**Question {st.session_state.game_round+1}:** {q_obj['q']}")
         user_guess = st.text_input("Your guess:", key=f"guess_{st.session_state.game_round}")
         submit_guess = st.button("Submit Guess")
 
@@ -272,12 +273,15 @@ elif page == "Guess-the-Word Game":
                 st.warning(f"Wrong! The correct answer is: {q_obj['a']}")
             st.session_state.played = True
     else:
-        next_btn = st.button("Next Question")
-        if next_btn:
-            st.session_state.game_round += 1
-            st.session_state.played = False
-        elif st.session_state.game_round == len(GAME_QUESTIONS)-1:
-            st.button("Play Again?", on_click=lambda: st.session_state.update({"game_round":0, "played":False}))
+        if st.session_state.game_round < len(GAME_QUESTIONS) - 1:
+            if st.button("Next Question"):
+                st.session_state.game_round += 1
+                st.session_state.played = False
+        else:
+            if st.button("Play Again?"):
+                st.session_state.game_round = 0
+                st.session_state.played = False
 
-st.markdown("---")
-st.markdown("Built for a hackathon demo. Data is stored locally in `mood_history.json`.")
+
+
+
